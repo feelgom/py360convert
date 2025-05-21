@@ -78,5 +78,6 @@ def e2p(
         order,
     )
     pers_img = np.stack([sampler(e_img[..., i]) for i in range(e_img.shape[2])], axis=-1)
+    pers_img = pers_img.astype(e_img.dtype)
 
     return pers_img[..., 0] if squeeze else pers_img

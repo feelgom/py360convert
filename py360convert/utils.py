@@ -363,11 +363,11 @@ def _map_coordinates_linear(img, coords):
     Ib = img[y1, x0]
     Ic = img[y0, x1]
     Id = img[y1, x1]
-    wa = (x1 - x) * (y1 - y)
-    wb = (x1 - x) * (y - y0)
-    wc = (x - x0) * (y1 - y)
-    wd = (x - x0) * (y - y0)
-    return wa * Ia + wb * Ib + wc * Ic + wd * Id
+
+    wy = y - y0
+    wx = x - x0
+
+    return (1 - wy) * (1 - wx) * Ia + (1 - wy) * wx * Ic + wy * (1 - wx) * Ib + wy * wx * Id
 
 
 def _cubic_kernel(x):
@@ -403,36 +403,40 @@ def _map_coordinates_cubic(img, coords):
 
 def _cube_faces_nearest_interp(img, coords):
     tp, y, x = coords
-    t = tp.astype(int)
-    y = np.round(y).astype(int)
-    x = np.round(x).astype(int)
-    t = np.clip(t, 0, img.shape[0] - 1)
+    t = np.clip(tp, 0, img.shape[0] - 1)
     y = np.clip(y, 0, img.shape[1] - 1)
     x = np.clip(x, 0, img.shape[2] - 1)
+
+    t = np.floor(t + 0.5).astype(int)
+    y = np.floor(y + 0.5).astype(int)
+    x = np.floor(x + 0.5).astype(int)
+
     return img[t, y, x]
 
 
 def _cube_faces_linear_interp(img, coord):
     tp, y, x = coord
-    t = tp.astype(int)
-    t = np.clip(t, 0, img.shape[0] - 1)
+    t = np.clip(tp, 0, img.shape[0] - 1)
+    y = np.clip(y, 0, img.shape[1] - 1)
+    x = np.clip(x, 0, img.shape[2] - 1)
+
     y0 = np.floor(y).astype(int)
     y1 = y0 + 1
     x0 = np.floor(x).astype(int)
     x1 = x0 + 1
-    y0 = np.clip(y0, 0, img.shape[1] - 1)
+
     y1 = np.clip(y1, 0, img.shape[1] - 1)
-    x0 = np.clip(x0, 0, img.shape[2] - 1)
     x1 = np.clip(x1, 0, img.shape[2] - 1)
+
+    wy = y - y0
+    wx = x - x0
+
     Ia = img[t, y0, x0]
     Ib = img[t, y1, x0]
     Ic = img[t, y0, x1]
     Id = img[t, y1, x1]
-    wa = (x1 - x) * (y1 - y)
-    wb = (x1 - x) * (y - y0)
-    wc = (x - x0) * (y1 - y)
-    wd = (x - x0) * (y - y0)
-    return wa * Ia + wb * Ib + wc * Ic + wd * Id
+
+    return (1 - wy) * (1 - wx) * Ia + wy * (1 - wx) * Ib + (1 - wy) * wx * Ic + wy * wx * Id
 
 
 def _cube_faces_cubic_interp(img, coords):

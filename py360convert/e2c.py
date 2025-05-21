@@ -80,8 +80,8 @@ def e2c(
     cubemap = np.stack(
         [sampler(e_img[..., i]) for i in range(e_img.shape[2])],
         axis=-1,
-        dtype=e_img.dtype,
     )
+    cubemap = cubemap.astype(e_img.dtype)
 
     if cube_format == "horizon":
         if squeeze:
